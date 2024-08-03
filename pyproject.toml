@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "my-chatbot"
+version = "0.1.0"
+description = "A chatbot assistant using open-source LLM models"
+authors = ["Melike Cankaya <melikekesskin@gmail.com>"]
+readme = "README.md"
+# homepage = "https://github.com/yourusername/chatbot-project"
+# repository = "https://github.com/yourusername/chatbot-project"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+transformers = "^4.43.3"
+tensorflow = "^2.17.0"
+torch = "^2.0.0"
+# django = "^4.2.0"  # Include if you plan to use Django for the web interface
+huggingface-hub = ">=0.23.2,<1.0"  # Add this line
+tf-keras = "2.17.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
