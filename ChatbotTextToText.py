@@ -1,7 +1,6 @@
 import time
 import os
-from pyexpat.errors import messages
-
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from config import MODEL_NAME
 
@@ -10,8 +9,20 @@ class ChatbotTextToText(object):
     def __init__(self):
         token = os.getenv("HUGGINGFACE_HUB_TOKEN")
 
-        self.llama_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=token)
-        self.llama_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=token)
+        # Device Pick
+        self.device = "mps" if torch.backends.mps.is_available() else "cpu"
+
+        print("Using device:", self.device)
+
+        self.llama_model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            token=token,
+            torch_dtype=torch.float16
+        ).to(self.device)
+        self.llama_tokenizer = AutoTokenizer.from_pretrained(
+            MODEL_NAME,
+            token=token
+        )
 
         # Set the pad token if it's not already set
         if self.llama_tokenizer.pad_token is None:
@@ -20,12 +31,15 @@ class ChatbotTextToText(object):
 
     def generate_response(self, prompt):
         inputs = self.llama_tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+
+        # Send inouts to GPU
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
         outputs = self.llama_model.generate(
-            inputs["input_ids"],
-            attention_mask=inputs["attention_mask"],
-            max_length=15,
+            inputs['input_ids'],
+            max_length=50,
             num_return_sequences=1,
-            pad_token_id=self.llama_tokenizer.eos_token_id  # Ensure pad_token_id is set to eos_token_id
+            pad_token_id=self.llama_tokenizer.eos_token_id # Ensure pad_token_id is set to eos_token_id
         )
         response = self.llama_tokenizer.decode(outputs[0], skip_special_tokens=True)
         return response
@@ -58,7 +72,7 @@ class ChatbotTextToText(object):
 
     def ask_to_chatbot(self, message):
         # Chatbot with LLaMA 3.1
-        self.chatbot_with_performance(message)
+        return self.chatbot_with_performance(message)
         '''
         # Load Apple/DCLM-7B Model
         dclm_model_name = "apple/DCLM-7B"

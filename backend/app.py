@@ -20,7 +20,6 @@ def chat():
     user_message = data.get("message", "")
 
     bot_reply = generate_response(user_message)
-
     return jsonify({
         "reply": bot_reply
     })
@@ -31,8 +30,9 @@ def generate_response(message: str) -> str:
 
     answer = chatbot.ask_to_chatbot(message)
 
-    return f"Chatbot: {answer}"
+    return  answer
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    # app.run(host="0.0.0.0", port=5173)
+    port = int(os.environ.get("PORT", 5173))
     app.run(host="0.0.0.0", port=port)
